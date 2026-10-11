@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="ExpertTracker/ExpertTracker.csproj">
+    <Deploy Solution="Debug|*" />
+  </Project>
+</Solution>
