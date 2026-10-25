@@ -13,6 +13,7 @@ namespace ExpertTracker.ViewModels;
 public partial class ExpensesViewModel : ObservableObject, ILifecycleAware {
  private readonly IExpenseRepository repo;
  private readonly ILogger<ExpensesViewModel> log;
+ private readonly IDraftStore drafts;
  public ObservableCollection<Expense> Expenses {get;}=new();
  [ObservableProperty] public partial string Description {get;set;}
  [ObservableProperty] public partial string Category {get;set;}
@@ -20,7 +21,8 @@ public partial class ExpensesViewModel : ObservableObject, ILifecycleAware {
  [ObservableProperty] public partial string ErrorMessage {get;set;}
  [ObservableProperty] public partial Expense? SelectedExpense {get;set;}
  public decimal TotalAmount=>Expenses.Sum(x=>x.Amount);
- public ExpensesViewModel(IExpenseRepository repository, ILogger<ExpensesViewModel> logger) {
+ public ExpensesViewModel(IExpenseRepository repository, ILogger<ExpensesViewModel> logger, IDraftStore draftStore) {
+  drafts=draftStore;
   log=logger;
   repo=repository; Description=Category=AmountText=ErrorMessage=""; RestoreDraft();
  }
@@ -55,14 +57,14 @@ public partial class ExpensesViewModel : ObservableObject, ILifecycleAware {
   await Shell.Current.GoToAsync(nameof(ExpenseDetailsPage)+"?id="+item.Id.ToString(CultureInfo.InvariantCulture));
  }
  public void SaveDraft() {
-  Preferences.Default.Set("draft.description",Description??"");
-  Preferences.Default.Set("draft.category",Category??"");
-  Preferences.Default.Set("draft.amount",AmountText??"");
+  drafts.Set("draft.description",Description??"");
+  drafts.Set("draft.category",Category??"");
+  drafts.Set("draft.amount",AmountText??"");
  }
  public void RestoreDraft() {
-  Description=Preferences.Default.Get("draft.description","");
-  Category=Preferences.Default.Get("draft.category","");
-  AmountText=Preferences.Default.Get("draft.amount","");
+  Description=drafts.Get("draft.description","");
+  Category=drafts.Get("draft.category","");
+  AmountText=drafts.Get("draft.amount","");
  }
  public void OnAppearing() {RestoreDraft();_=LoadExpensesAsync();}
  public void OnDisappearing()=>SaveDraft();

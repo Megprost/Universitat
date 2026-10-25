@@ -15,6 +15,7 @@ public static class MauiProgram {
   string logPath=Path.Combine(FileSystem.AppDataDirectory,"experttracker.log");
   b.Logging.AddProvider(new FileLoggerProvider(logPath));
   b.Services.AddSingleton<IExpenseRepository>(sp=>new DatabaseService(path,sp.GetRequiredService<ILogger<DatabaseService>>()));
+  b.Services.AddSingleton<IDraftStore, PreferencesDraftStore>();
   b.Services.AddSingleton<ExpensesViewModel>();
   b.Services.AddSingleton<ExpensesPage>();
   b.Services.AddSingleton<AppShell>();

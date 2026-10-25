@@ -7,6 +7,7 @@ public sealed class DatabaseService : IExpenseRepository {
  private readonly ILogger<DatabaseService> logger;
  private readonly SemaphoreSlim gate = new(1,1);
  private bool ready;
+ public Task CloseAsync() => db.CloseAsync();
  public DatabaseService(string path, ILogger<DatabaseService> log) { db = new SQLiteAsyncConnection(path);logger=log; }
  private async Task Init() {
   if(ready)return;
