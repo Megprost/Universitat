@@ -12,7 +12,9 @@ public static class MauiProgram {
    f.AddFont("OpenSans-Semibold.ttf","OpenSansSemibold");
   });
   string path=Path.Combine(FileSystem.AppDataDirectory,"expenses.db3");
-  b.Services.AddSingleton<IExpenseRepository>(_=>new DatabaseService(path));
+  string logPath=Path.Combine(FileSystem.AppDataDirectory,"experttracker.log");
+  b.Logging.AddProvider(new FileLoggerProvider(logPath));
+  b.Services.AddSingleton<IExpenseRepository>(sp=>new DatabaseService(path,sp.GetRequiredService<ILogger<DatabaseService>>()));
   b.Services.AddSingleton<ExpensesViewModel>();
   b.Services.AddSingleton<ExpensesPage>();
   b.Services.AddSingleton<AppShell>();
@@ -21,6 +23,10 @@ public static class MauiProgram {
 #if DEBUG
   b.Logging.AddDebug();
 #endif
-  return b.Build();
+  var app=b.Build();
+  var critical=app.Services.GetRequiredService<ILogger<App>>();
+  AppDomain.CurrentDomain.UnhandledException+=(_,e)=>critical.LogCritical(e.ExceptionObject as Exception,"Unhandled application error");
+  TaskScheduler.UnobservedTaskException+=(_,e)=>critical.LogCritical(e.Exception,"Unobserved task error");
+  return app;
  }
 }

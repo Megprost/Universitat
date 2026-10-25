@@ -3,15 +3,17 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ExpertTracker.Helpers;
 using ExpertTracker.Services;
+using Microsoft.Extensions.Logging;
 namespace ExpertTracker.ViewModels;
 public partial class ExpenseDetailsViewModel:ObservableObject,IQueryAttributable,ILifecycleAware {
- private readonly IExpenseRepository repo;private int id;
+ private readonly IExpenseRepository repo;private readonly ILogger<ExpenseDetailsViewModel> log;private int id;
  [ObservableProperty]public partial string Description {get;set;}
  [ObservableProperty]public partial string Category {get;set;}
  [ObservableProperty]public partial string AmountText {get;set;}
  [ObservableProperty]public partial string DateText {get;set;}
  [ObservableProperty]public partial string Message {get;set;}
- public ExpenseDetailsViewModel(IExpenseRepository repository) {
+ public ExpenseDetailsViewModel(IExpenseRepository repository, ILogger<ExpenseDetailsViewModel> logger) {
+  log=logger;
   repo=repository;Description=Category=AmountText=DateText=Message="";
  }
  public void ApplyQueryAttributes(IDictionary<string,object> query) {
@@ -26,7 +28,7 @@ public partial class ExpenseDetailsViewModel:ObservableObject,IQueryAttributable
    Description=x.Description;Category=x.Category;
    AmountText=x.Amount.ToString("0.00",CultureInfo.InvariantCulture);
    DateText=x.Date.ToString("dd.MM.yyyy");Message="";
-  }catch(Exception ex){System.Diagnostics.Debug.WriteLine(ex);Message="Помилка завантаження.";}
+  }catch(Exception ex){log.LogError(ex,"Expense detail operation failed");Message="Помилка завантаження.";}
  }
  [RelayCommand]private async Task SaveAsync() {
   if(string.IsNullOrWhiteSpace(Description)||string.IsNullOrWhiteSpace(Category)||
@@ -38,13 +40,13 @@ public partial class ExpenseDetailsViewModel:ObservableObject,IQueryAttributable
    var x=await repo.GetByIdAsync(id);if(x is null){Message="Не знайдено.";return;}
    x.Description=Description.Trim();x.Category=Category.Trim();x.Amount=a;
    await repo.UpdateAsync(x);await Shell.Current.GoToAsync("..");
-  }catch(Exception ex){System.Diagnostics.Debug.WriteLine(ex);Message="Не вдалося оновити.";}
+  }catch(Exception ex){log.LogError(ex,"Expense detail operation failed");Message="Не вдалося оновити.";}
  }
  [RelayCommand]private async Task DeleteAsync() {
   try {
    var x=await repo.GetByIdAsync(id);if(x is null){Message="Не знайдено.";return;}
    await repo.DeleteAsync(x);await Shell.Current.GoToAsync("..");
-  }catch(Exception ex){System.Diagnostics.Debug.WriteLine(ex);Message="Не вдалося видалити.";}
+  }catch(Exception ex){log.LogError(ex,"Expense detail operation failed");Message="Не вдалося видалити.";}
  }
  [RelayCommand]private Task GoBackAsync()=>Shell.Current.GoToAsync("..");
  public void OnAppearing(){}public void OnDisappearing(){}

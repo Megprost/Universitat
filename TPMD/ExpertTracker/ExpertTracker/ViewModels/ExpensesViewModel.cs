@@ -6,11 +6,13 @@ using ExpertTracker.Helpers;
 using ExpertTracker.Models;
 using ExpertTracker.Services;
 using ExpertTracker.Views;
+using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Storage;
 
 namespace ExpertTracker.ViewModels;
 public partial class ExpensesViewModel : ObservableObject, ILifecycleAware {
  private readonly IExpenseRepository repo;
+ private readonly ILogger<ExpensesViewModel> log;
  public ObservableCollection<Expense> Expenses {get;}=new();
  [ObservableProperty] public partial string Description {get;set;}
  [ObservableProperty] public partial string Category {get;set;}
@@ -18,7 +20,8 @@ public partial class ExpensesViewModel : ObservableObject, ILifecycleAware {
  [ObservableProperty] public partial string ErrorMessage {get;set;}
  [ObservableProperty] public partial Expense? SelectedExpense {get;set;}
  public decimal TotalAmount=>Expenses.Sum(x=>x.Amount);
- public ExpensesViewModel(IExpenseRepository repository) {
+ public ExpensesViewModel(IExpenseRepository repository, ILogger<ExpensesViewModel> logger) {
+  log=logger;
   repo=repository; Description=Category=AmountText=ErrorMessage=""; RestoreDraft();
  }
  [RelayCommand] private async Task LoadExpensesAsync() {
@@ -27,13 +30,13 @@ public partial class ExpensesViewModel : ObservableObject, ILifecycleAware {
    foreach(var item in items)Expenses.Add(item);
    OnPropertyChanged(nameof(TotalAmount)); ErrorMessage="";
   } catch(Exception ex) {
-   System.Diagnostics.Debug.WriteLine(ex);
+   log.LogError(ex,"Expense list loading failed");
    ErrorMessage="Не вдалося завантажити дані.";
   }
  }
  [RelayCommand] private async Task AddExpenseAsync() {
   if(string.IsNullOrWhiteSpace(Description)||string.IsNullOrWhiteSpace(Category)){
-   ErrorMessage="Введіть назву та категорію.";return;
+   log.LogWarning("Invalid expense: required fields missing");ErrorMessage="Введіть назву та категорію.";return;
   }
   if(!decimal.TryParse((AmountText??"").Replace(',','.'),
    NumberStyles.AllowDecimalPoint,CultureInfo.InvariantCulture,out var amount)
@@ -44,7 +47,7 @@ public partial class ExpensesViewModel : ObservableObject, ILifecycleAware {
    var item=new Expense{Description=Description.Trim(),Category=Category.Trim(),Amount=amount,Date=DateTime.Today};
    await repo.InsertAsync(item); await LoadExpensesAsync();
    Description=Category=AmountText="";SaveDraft();
-  } catch(Exception ex) { System.Diagnostics.Debug.WriteLine(ex);ErrorMessage="Не вдалося зберегти."; }
+  } catch(Exception ex) { log.LogError(ex,"Expense insert failed");ErrorMessage="Не вдалося зберегти."; }
  }
  [RelayCommand] private async Task OpenDetailsAsync() {
   var item=SelectedExpense;if(item is null)return;
