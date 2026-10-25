@@ -15,7 +15,12 @@
   <Label Text="{Binding DateText}" TextColor="#334155"/>
   <Label Text="{Binding Message}" TextColor="Red"/>
   <Button Text="Зберегти" Command="{Binding SaveCommand}" BackgroundColor="#2563EB" TextColor="White"/>
-  <Button Text="Видалити" Command="{Binding DeleteCommand}" BackgroundColor="#B91C1C" TextColor="White"/>
+  <Button Text="Видалити" Command="{Binding DeleteCommand}"
+    IsVisible="{Binding CanDelete}" BackgroundColor="#B91C1C" TextColor="White"/>
+  <Button Text="Сфотографувати чек" Command="{Binding AttachReceiptCommand}"/>
+  <Image Source="{Binding ImagePath}" HeightRequest="160" Aspect="AspectFit"/>
+  <Button Text="Зберегти GPS-координати" Command="{Binding CaptureLocationCommand}"/>
+  <Label Text="{Binding CoordinatesText}" TextColor="#334155"/>
   <Button Text="Назад" Command="{Binding GoBackCommand}"/>
  </VerticalStackLayout></ScrollView>
 </ContentPage>

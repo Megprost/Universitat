@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+ xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+ xmlns:vm="clr-namespace:ExpertTracker.ViewModels"
+ x:Class="ExpertTracker.Views.LoginPage" x:DataType="vm:LoginViewModel"
+ Title="Вхід" BackgroundColor="#F5F7FB">
+ <ScrollView><VerticalStackLayout Padding="24" Spacing="12">
+  <Label Text="Вхід до ExpertTracker" FontSize="24" TextColor="#172554" />
+  <Entry Placeholder="Логін" Text="{Binding Login,Mode=TwoWay}"
+    TextColor="#0F172A" PlaceholderColor="#64748B" BackgroundColor="#F8FAFC"/>
+  <Entry Placeholder="Пароль" Text="{Binding Password,Mode=TwoWay}"
+    IsPassword="True" TextColor="#0F172A" PlaceholderColor="#64748B" BackgroundColor="#F8FAFC"/>
+  <Button Text="Увійти" Command="{Binding SignInCommand}" BackgroundColor="#2563EB" TextColor="White"/>
+  <Label Text="{Binding Message}" TextColor="#B91C1C"/>
+  <Label Text="Навчальні акаунти: owner / demo-owner-2026; accountant / demo-accountant-2026"
+    FontSize="12" TextColor="#64748B"/>
+ </VerticalStackLayout></ScrollView>
+</ContentPage>

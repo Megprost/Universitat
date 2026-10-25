@@ -14,6 +14,8 @@ public partial class ExpensesViewModel : ObservableObject, ILifecycleAware {
  private readonly IExpenseRepository repo;
  private readonly ILogger<ExpensesViewModel> log;
  private readonly IDraftStore drafts;
+ private readonly AuthService auth;
+ public bool IsSignedIn=>auth.IsSignedIn;
  public ObservableCollection<Expense> Expenses {get;}=new();
  [ObservableProperty] public partial string Description {get;set;}
  [ObservableProperty] public partial string Category {get;set;}
@@ -21,8 +23,8 @@ public partial class ExpensesViewModel : ObservableObject, ILifecycleAware {
  [ObservableProperty] public partial string ErrorMessage {get;set;}
  [ObservableProperty] public partial Expense? SelectedExpense {get;set;}
  public decimal TotalAmount=>Expenses.Sum(x=>x.Amount);
- public ExpensesViewModel(IExpenseRepository repository, ILogger<ExpensesViewModel> logger, IDraftStore draftStore) {
-  drafts=draftStore;
+ public ExpensesViewModel(IExpenseRepository repository, ILogger<ExpensesViewModel> logger, IDraftStore draftStore, AuthService authService) {
+  drafts=draftStore;auth=authService;
   log=logger;
   repo=repository; Description=Category=AmountText=ErrorMessage=""; RestoreDraft();
  }
@@ -37,6 +39,7 @@ public partial class ExpensesViewModel : ObservableObject, ILifecycleAware {
   }
  }
  [RelayCommand] private async Task AddExpenseAsync() {
+  if(!auth.IsSignedIn){ErrorMessage="Спочатку увійдіть.";return;}
   if(string.IsNullOrWhiteSpace(Description)||string.IsNullOrWhiteSpace(Category)){
    log.LogWarning("Invalid expense: required fields missing");ErrorMessage="Введіть назву та категорію.";return;
   }
@@ -66,6 +69,7 @@ public partial class ExpensesViewModel : ObservableObject, ILifecycleAware {
   Category=drafts.Get("draft.category","");
   AmountText=drafts.Get("draft.amount","");
  }
- public void OnAppearing() {RestoreDraft();_=LoadExpensesAsync();}
+ [RelayCommand]private async Task LogoutAsync(){auth.Logout();Expenses.Clear();OnPropertyChanged(nameof(TotalAmount));await Shell.Current.GoToAsync("//login");}
+ public void OnAppearing() {RestoreDraft();if(auth.IsSignedIn)_=LoadExpensesAsync();}
  public void OnDisappearing()=>SaveDraft();
 }
