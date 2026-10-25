@@ -19,6 +19,20 @@ public partial class ExpensesViewModel : ObservableObject, ILifecycleAware
 
     private readonly InMemoryExpenseStore _store;
 
+    // Do not save partial draft values during the restore operation.
+    private bool _draftInitialized;
+    private bool _restoringDraft;
+
+    partial void OnDescriptionChanged(string value) => SaveDraftIfReady();
+    partial void OnCategoryChanged(string value) => SaveDraftIfReady();
+    partial void OnAmountTextChanged(string value) => SaveDraftIfReady();
+
+    private void SaveDraftIfReady()
+    {
+        if (_draftInitialized && !_restoringDraft)
+            SaveDraft();
+    }
+
     public ObservableCollection<Expense> Expenses => _store.Expenses;
 
     [ObservableProperty]
@@ -107,9 +121,23 @@ public partial class ExpensesViewModel : ObservableObject, ILifecycleAware
 
     public void RestoreDraft()
     {
-        Description = Preferences.Default.Get(DraftDescriptionKey, "");
-        Category = Preferences.Default.Get(DraftCategoryKey, "");
-        AmountText = Preferences.Default.Get(DraftAmountKey, "");
+        // Read all keys before changing any bound property.
+        string description = Preferences.Default.Get(DraftDescriptionKey, "");
+        string category = Preferences.Default.Get(DraftCategoryKey, "");
+        string amount = Preferences.Default.Get(DraftAmountKey, "");
+
+        _restoringDraft = true;
+        try
+        {
+            Description = description;
+            Category = category;
+            AmountText = amount;
+        }
+        finally
+        {
+            _restoringDraft = false;
+            _draftInitialized = true;
+        }
         Debug.WriteLine("[Lab02] Draft restored from Preferences");
     }
 
