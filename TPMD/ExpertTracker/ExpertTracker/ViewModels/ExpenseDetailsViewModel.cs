@@ -27,6 +27,7 @@ public partial class ExpenseDetailsViewModel:ObservableObject,IQueryAttributable
   _=LoadAsync();
  }
  [RelayCommand]private async Task LoadAsync() {
+  if(!auth.IsSignedIn){Message="Спочатку увійдіть.";return;}
   try {
    var x=await repo.GetByIdAsync(id);
    if(x is null){Message="Не знайдено.";return;}
@@ -38,6 +39,7 @@ public partial class ExpenseDetailsViewModel:ObservableObject,IQueryAttributable
   }catch(Exception ex){log.LogError(ex,"Expense detail operation failed");Message="Помилка завантаження.";}
  }
  [RelayCommand]private async Task SaveAsync() {
+  if(!auth.IsSignedIn){Message="Спочатку увійдіть.";return;}
   if(string.IsNullOrWhiteSpace(Description)||string.IsNullOrWhiteSpace(Category)||
    !decimal.TryParse((AmountText??"").Replace(',','.'),NumberStyles.AllowDecimalPoint,
     CultureInfo.InvariantCulture,out var a)||a<=0||a>1000000000m||decimal.Round(a,2)!=a){

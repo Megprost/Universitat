@@ -10,11 +10,12 @@
     BackgroundColor="#F5F7FB">
 
     <Grid Padding="18" RowDefinitions="Auto,Auto,Auto,*,Auto" RowSpacing="12">
-        <Label Grid.Row="0"
-               Text="Облік бізнес-витрат"
-               FontSize="24"
-               FontAttributes="Bold"
-               TextColor="#172554" />
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="12">
+        <Label Text="Облік бізнес-витрат" FontSize="24"
+          FontAttributes="Bold" TextColor="#172554" VerticalOptions="Center"/>
+        <Button Grid.Column="1" Text="Вийти" Command="{Binding LogoutCommand}"
+          BackgroundColor="#475569" TextColor="White" />
+      </Grid>
 
         <Border Grid.Row="1" BackgroundColor="White"
                 Stroke="#E2E8F0" StrokeShape="RoundRectangle 14"

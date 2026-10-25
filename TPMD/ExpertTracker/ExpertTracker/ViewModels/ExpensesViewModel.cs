@@ -29,6 +29,7 @@ public partial class ExpensesViewModel : ObservableObject, ILifecycleAware {
   repo=repository; Description=Category=AmountText=ErrorMessage=""; RestoreDraft();
  }
  [RelayCommand] private async Task LoadExpensesAsync() {
+  if(!auth.IsSignedIn){Expenses.Clear();OnPropertyChanged(nameof(TotalAmount));ErrorMessage="Увійдіть до застосунку.";return;}
   try {
    var items=await repo.GetAllAsync(); Expenses.Clear();
    foreach(var item in items)Expenses.Add(item);
@@ -55,7 +56,7 @@ public partial class ExpensesViewModel : ObservableObject, ILifecycleAware {
   } catch(Exception ex) { log.LogError(ex,"Expense insert failed");ErrorMessage="Не вдалося зберегти."; }
  }
  [RelayCommand] private async Task OpenDetailsAsync() {
-  var item=SelectedExpense;if(item is null)return;
+  var item=SelectedExpense;if(item is null||!auth.IsSignedIn)return;
   SelectedExpense=null;SaveDraft();
   await Shell.Current.GoToAsync(nameof(ExpenseDetailsPage)+"?id="+item.Id.ToString(CultureInfo.InvariantCulture));
  }
