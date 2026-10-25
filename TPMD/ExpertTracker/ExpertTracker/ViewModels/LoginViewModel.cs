@@ -4,11 +4,11 @@ using ExpertTracker.Services;
 namespace ExpertTracker.ViewModels;
 public partial class LoginViewModel:ObservableObject
 {
- private readonly AuthService auth;
+ private readonly IAuthService auth;
  [ObservableProperty] public partial string Login {get;set;}
  [ObservableProperty] public partial string Password {get;set;}
  [ObservableProperty] public partial string Message {get;set;}
- public LoginViewModel(AuthService service){auth=service;Login=Password=Message="";}
+ public LoginViewModel(IAuthService service){auth=service;Login=Password=Message="";}
  [RelayCommand] private async Task SignInAsync()
  {
   try {

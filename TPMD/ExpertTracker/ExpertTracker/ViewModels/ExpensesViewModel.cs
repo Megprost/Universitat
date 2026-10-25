@@ -14,7 +14,7 @@ public partial class ExpensesViewModel : ObservableObject, ILifecycleAware {
  private readonly IExpenseRepository repo;
  private readonly ILogger<ExpensesViewModel> log;
  private readonly IDraftStore drafts;
- private readonly AuthService auth;
+ private readonly IAuthService auth;
  public bool IsSignedIn=>auth.IsSignedIn;
  public ObservableCollection<Expense> Expenses {get;}=new();
  [ObservableProperty] public partial string Description {get;set;}
@@ -23,7 +23,7 @@ public partial class ExpensesViewModel : ObservableObject, ILifecycleAware {
  [ObservableProperty] public partial string ErrorMessage {get;set;}
  [ObservableProperty] public partial Expense? SelectedExpense {get;set;}
  public decimal TotalAmount=>Expenses.Sum(x=>x.Amount);
- public ExpensesViewModel(IExpenseRepository repository, ILogger<ExpensesViewModel> logger, IDraftStore draftStore, AuthService authService) {
+ public ExpensesViewModel(IExpenseRepository repository, ILogger<ExpensesViewModel> logger, IDraftStore draftStore, IAuthService authService) {
   drafts=draftStore;auth=authService;
   log=logger;
   repo=repository; Description=Category=AmountText=ErrorMessage=""; RestoreDraft();

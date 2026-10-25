@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 namespace ExpertTracker.ViewModels;
 public partial class ExpenseDetailsViewModel:ObservableObject,IQueryAttributable,ILifecycleAware {
  private readonly IExpenseRepository repo;private readonly ILogger<ExpenseDetailsViewModel> log;
- private readonly AuthService auth;
+ private readonly IAuthService auth;
  private readonly IDeviceService device;
  public bool CanDelete=>auth.IsOwner;private int id;
  [ObservableProperty]public partial string Description {get;set;}
@@ -17,7 +17,7 @@ public partial class ExpenseDetailsViewModel:ObservableObject,IQueryAttributable
  [ObservableProperty]public partial string Message {get;set;}
  [ObservableProperty]public partial string? ImagePath {get;set;}
  [ObservableProperty]public partial string CoordinatesText {get;set;}
- public ExpenseDetailsViewModel(IExpenseRepository repository, ILogger<ExpenseDetailsViewModel> logger, AuthService authService, IDeviceService deviceService) {
+ public ExpenseDetailsViewModel(IExpenseRepository repository, ILogger<ExpenseDetailsViewModel> logger, IAuthService authService, IDeviceService deviceService) {
   log=logger;auth=authService;device=deviceService;CoordinatesText="";
   repo=repository;Description=Category=AmountText=DateText=Message="";
  }

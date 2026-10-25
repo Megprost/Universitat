@@ -8,9 +8,12 @@ using Xunit;
 namespace ExpertTracker.Tests;
 public class ExpensesViewModelTests
 {
+ private static IAuthService CreateAuth() {
+  var auth=new Mock<IAuthService>();auth.SetupGet(x=>x.IsSignedIn).Returns(true);return auth.Object;
+ }
  private static ExpensesViewModel Create(Mock<IExpenseRepository> repo) =>
   new(repo.Object,NullLogger<ExpensesViewModel>.Instance,
-   new Mock<IDraftStore>().Object);
+   new Mock<IDraftStore>().Object, CreateAuth());
 
  [Fact]
  public async Task Load_ShouldShowRows()

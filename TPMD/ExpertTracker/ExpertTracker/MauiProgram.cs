@@ -16,7 +16,7 @@ public static class MauiProgram {
   b.Logging.AddProvider(new FileLoggerProvider(logPath));
   b.Services.AddSingleton<IExpenseRepository>(sp=>new DatabaseService(path,sp.GetRequiredService<ILogger<DatabaseService>>()));
   b.Services.AddSingleton<IDraftStore, PreferencesDraftStore>();
-  b.Services.AddSingleton<AuthService>(sp=>new AuthService(path,sp.GetRequiredService<ILogger<AuthService>>()));
+  b.Services.AddSingleton<IAuthService>(sp=>new AuthService(path,sp.GetRequiredService<ILogger<AuthService>>()));
   b.Services.AddSingleton<IDeviceService,DeviceService>();
   b.Services.AddSingleton<LoginViewModel>();
   b.Services.AddSingleton<LoginPage>();

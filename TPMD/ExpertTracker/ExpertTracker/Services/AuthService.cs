@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using SQLite;
 namespace ExpertTracker.Services;
 // Local teaching example; demo credentials must never be reused in production.
-public sealed class AuthService
+public sealed class AuthService : IAuthService
 {
  private readonly SQLiteAsyncConnection db;
  private readonly ILogger<AuthService> log;
