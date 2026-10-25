@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ExpertTracker.ViewModels"
+    x:Class="ExpertTracker.Views.ExpenseDetailsPage"
+    x:DataType="vm:ExpenseDetailsViewModel"
+    Title="Деталі витрати"
+    BackgroundColor="#F5F7FB">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="18" Spacing="16">
+            <Label Text="Деталі бізнес-витрати"
+                   FontSize="24"
+                   FontAttributes="Bold"
+                   TextColor="#172554" />
+
+            <Border BackgroundColor="White"
+                    Stroke="#E2E8F0"
+                    StrokeShape="RoundRectangle 14"
+                    Padding="18">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Назва" FontSize="13" TextColor="#64748B"/>
+                    <Label Text="{Binding Description}"
+                           FontSize="21" TextColor="#1E293B"
+                           FontAttributes="Bold"/>
+
+                    <Label Text="Категорія" FontSize="13" TextColor="#64748B"/>
+                    <Label Text="{Binding Category}" FontSize="17" TextColor="#1E293B"/>
+
+                    <Label Text="Сума" FontSize="13" TextColor="#64748B"/>
+                    <Label Text="{Binding AmountText}"
+                           FontSize="19" TextColor="#2563EB"
+                           FontAttributes="Bold"/>
+
+                    <Label Text="Дата" FontSize="13" TextColor="#64748B"/>
+                    <Label Text="{Binding DateText}" FontSize="17" TextColor="#1E293B"/>
+
+                    <Label Text="{Binding Message}" TextColor="#DC2626"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <Button Text="Повернутися до списку"
+                    Command="{Binding GoBackCommand}"
+                    BackgroundColor="#2563EB"
+                    TextColor="White"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

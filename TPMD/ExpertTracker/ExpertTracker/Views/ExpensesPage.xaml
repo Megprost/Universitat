@@ -9,29 +9,19 @@
     Title="Бізнес-витрати ФОП"
     BackgroundColor="#F5F7FB">
 
-    <Grid Padding="18"
-          RowDefinitions="Auto,Auto,Auto,*,Auto"
-          RowSpacing="12">
-
-        <!-- Заголовок -->
+    <Grid Padding="18" RowDefinitions="Auto,Auto,Auto,*,Auto" RowSpacing="12">
         <Label Grid.Row="0"
                Text="Облік бізнес-витрат"
                FontSize="24"
                FontAttributes="Bold"
                TextColor="#172554" />
 
-        <!-- Форма введення -->
-        <Border Grid.Row="1"
-                BackgroundColor="White"
-                Stroke="#E2E8F0"
-                StrokeShape="RoundRectangle 14"
+        <Border Grid.Row="1" BackgroundColor="White"
+                Stroke="#E2E8F0" StrokeShape="RoundRectangle 14"
                 Padding="16">
-
             <VerticalStackLayout Spacing="10">
-
                 <Label Text="Нова витрата"
-                       FontSize="18"
-                       FontAttributes="Bold"
+                       FontSize="18" FontAttributes="Bold"
                        TextColor="#1E293B" />
 
                 <Entry Placeholder="Назва витрати"
@@ -51,23 +41,19 @@
                         CornerRadius="10" />
 
                 <Label Text="{Binding ErrorMessage}"
-                       TextColor="#DC2626"
-                       FontSize="13" />
-
+                       TextColor="#DC2626" FontSize="13" />
             </VerticalStackLayout>
         </Border>
 
-        <!-- Заголовок списку -->
-        <Label Grid.Row="2"
-               Text="Список витрат"
-               FontSize="18"
-               FontAttributes="Bold"
+        <Label Grid.Row="2" Text="Список витрат (натисніть для деталей)"
+               FontSize="18" FontAttributes="Bold"
                TextColor="#1E293B" />
 
-        <!-- Колекція витрат -->
         <CollectionView Grid.Row="3"
                         ItemsSource="{Binding Expenses}"
-                        SelectionMode="None">
+                        SelectionMode="Single"
+                        SelectedItem="{Binding SelectedExpense, Mode=TwoWay}"
+                        SelectionChangedCommand="{Binding OpenDetailsCommand}">
 
             <CollectionView.EmptyView>
                 <Label Text="Витрат поки немає."
@@ -78,18 +64,13 @@
 
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:Expense">
-
                     <Border BackgroundColor="White"
                             Stroke="#E2E8F0"
                             StrokeShape="RoundRectangle 10"
-                            Padding="12"
-                            Margin="0,0,0,8">
-
+                            Padding="12" Margin="0,0,0,8">
                         <Grid ColumnDefinitions="*,Auto"
                               RowDefinitions="Auto,Auto"
-                              RowSpacing="6"
-                              ColumnSpacing="8">
-
+                              RowSpacing="6" ColumnSpacing="8">
                             <Label Text="{Binding Description}"
                                    FontAttributes="Bold"
                                    TextColor="#1E293B" />
@@ -99,12 +80,10 @@
                                    TextColor="#2563EB"
                                    FontAttributes="Bold" />
 
-                            <Label Grid.Row="1"
-                                   Text="{Binding Category}"
+                            <Label Grid.Row="1" Text="{Binding Category}"
                                    TextColor="#64748B" />
 
-                            <Label Grid.Row="1"
-                                   Grid.Column="1"
+                            <Label Grid.Row="1" Grid.Column="1"
                                    Text="{Binding Date, StringFormat='Дата: {0:dd.MM.yyyy}'}"
                                    TextColor="#64748B"
                                    FontSize="12" />
@@ -114,18 +93,14 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <!-- Загальна сума -->
         <Border Grid.Row="4"
                 BackgroundColor="#DBEAFE"
                 StrokeThickness="0"
                 StrokeShape="RoundRectangle 12"
                 Padding="15">
-
             <Label Text="{Binding TotalAmount, StringFormat='Разом: {0:N2} грн'}"
-                   FontSize="20"
-                   FontAttributes="Bold"
+                   FontSize="20" FontAttributes="Bold"
                    TextColor="#1E40AF" />
         </Border>
-
     </Grid>
 </ContentPage>

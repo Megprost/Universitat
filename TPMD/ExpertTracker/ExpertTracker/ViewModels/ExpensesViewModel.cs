@@ -1,16 +1,25 @@
-﻿
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ExpertTracker.Helpers;
 using ExpertTracker.Models;
-using System.Collections.ObjectModel;
-using System.Globalization;
+using ExpertTracker.Services;
+using ExpertTracker.Views;
+using Microsoft.Maui.Storage;
 
 namespace ExpertTracker.ViewModels;
 
-public partial class ExpensesViewModel : ObservableObject
+public partial class ExpensesViewModel : ObservableObject, ILifecycleAware
 {
-    public ObservableCollection<Expense> Expenses { get; } = new();
+    private const string DraftDescriptionKey = "lab02.draft.description";
+    private const string DraftCategoryKey = "lab02.draft.category";
+    private const string DraftAmountKey = "lab02.draft.amount";
 
+    private readonly InMemoryExpenseStore _store;
+
+    public ObservableCollection<Expense> Expenses => _store.Expenses;
 
     [ObservableProperty]
     public partial string Description { get; set; }
@@ -24,16 +33,21 @@ public partial class ExpensesViewModel : ObservableObject
     [ObservableProperty]
     public partial string ErrorMessage { get; set; }
 
-    public ExpensesViewModel()
+    [ObservableProperty]
+    public partial Expense? SelectedExpense { get; set; }
+
+    public decimal TotalAmount => Expenses.Sum(e => e.Amount);
+
+    public ExpensesViewModel(InMemoryExpenseStore store)
     {
+        _store = store;
         Description = "";
         Category = "";
         AmountText = "";
         ErrorMessage = "";
+        SelectedExpense = null;
+        RestoreDraft();
     }
-
-
-    public decimal TotalAmount => Expenses.Sum(e => e.Amount);
 
     [RelayCommand]
     private void AddExpense()
@@ -45,8 +59,7 @@ public partial class ExpensesViewModel : ObservableObject
             return;
         }
 
-        string input = AmountText.Trim().Replace(',', '.');
-
+        string input = (AmountText ?? "").Trim().Replace(',', '.');
         if (!decimal.TryParse(
                 input,
                 NumberStyles.AllowDecimalPoint,
@@ -57,20 +70,58 @@ public partial class ExpensesViewModel : ObservableObject
             return;
         }
 
-        Expenses.Add(new Expense
-        {
-            Id = Expenses.Count + 1,
-            Description = Description.Trim(),
-            Category = Category.Trim(),
-            Amount = amount,
-            Date = DateTime.Today
-        });
-
+        _store.Add(Description.Trim(), Category.Trim(), amount);
         OnPropertyChanged(nameof(TotalAmount));
 
         Description = "";
         Category = "";
         AmountText = "";
         ErrorMessage = "";
+        SaveDraft();
+    }
+
+    // CollectionView.SelectionChangedCommand викликає цю команду.
+    [RelayCommand]
+    private async Task OpenDetailsAsync()
+    {
+        var selected = SelectedExpense;
+        if (selected is null)
+            return;
+
+        // Дозволяє натиснути той самий запис після повернення назад.
+        SelectedExpense = null;
+        SaveDraft();
+
+        await Shell.Current.GoToAsync(
+            nameof(ExpenseDetailsPage) + "?id=" +
+            selected.Id.ToString(CultureInfo.InvariantCulture));
+    }
+
+    public void SaveDraft()
+    {
+        Preferences.Default.Set(DraftDescriptionKey, Description ?? "");
+        Preferences.Default.Set(DraftCategoryKey, Category ?? "");
+        Preferences.Default.Set(DraftAmountKey, AmountText ?? "");
+        Debug.WriteLine("[Lab02] Draft saved with Preferences");
+    }
+
+    public void RestoreDraft()
+    {
+        Description = Preferences.Default.Get(DraftDescriptionKey, "");
+        Category = Preferences.Default.Get(DraftCategoryKey, "");
+        AmountText = Preferences.Default.Get(DraftAmountKey, "");
+        Debug.WriteLine("[Lab02] Draft restored from Preferences");
+    }
+
+    public void OnAppearing()
+    {
+        Debug.WriteLine("[Lab02] ExpensesViewModel.OnAppearing");
+        RestoreDraft();
+    }
+
+    public void OnDisappearing()
+    {
+        Debug.WriteLine("[Lab02] ExpensesViewModel.OnDisappearing");
+        SaveDraft();
     }
 }

@@ -1,4 +1,4 @@
-﻿
+using ExpertTracker.Services;
 using ExpertTracker.ViewModels;
 using ExpertTracker.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,20 +16,19 @@ public static class MauiProgram
             .UseMauiApp<App>()
             .ConfigureFonts(fonts =>
             {
-                fonts.AddFont(
-                    "OpenSans-Regular.ttf",
-                    "OpenSansRegular");
-
-                fonts.AddFont(
-                    "OpenSans-Semibold.ttf",
-                    "OpenSansSemibold");
+                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
-        // Реєстрація ViewModel
+        // Singleton: один список у пам'яті для головного екрана та екрана деталей.
+        builder.Services.AddSingleton<InMemoryExpenseStore>();
         builder.Services.AddSingleton<ExpensesViewModel>();
-
-        // Реєстрація View
         builder.Services.AddSingleton<ExpensesPage>();
+        builder.Services.AddSingleton<AppShell>();
+
+        // Transient: нова VM та сторінка для кожного відкриття деталей.
+        builder.Services.AddTransient<ExpenseDetailsViewModel>();
+        builder.Services.AddTransient<ExpenseDetailsPage>();
 
 #if DEBUG
         builder.Logging.AddDebug();
