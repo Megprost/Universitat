@@ -25,12 +25,21 @@
                        TextColor="#1E293B" />
 
                 <Entry Placeholder="Назва витрати"
+                       TextColor="#0F172A"
+                       PlaceholderColor="#64748B"
+                       BackgroundColor="#F8FAFC"
                        Text="{Binding Description, Mode=TwoWay}" />
 
                 <Entry Placeholder="Категорія"
+                       TextColor="#0F172A"
+                       PlaceholderColor="#64748B"
+                       BackgroundColor="#F8FAFC"
                        Text="{Binding Category, Mode=TwoWay}" />
 
                 <Entry Placeholder="Сума у гривнях"
+                       TextColor="#0F172A"
+                       PlaceholderColor="#64748B"
+                       BackgroundColor="#F8FAFC"
                        Keyboard="Numeric"
                        Text="{Binding AmountText, Mode=TwoWay}" />
 
