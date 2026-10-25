@@ -11,6 +11,13 @@ using Microsoft.Maui.Storage;
 
 namespace ExpertTracker.ViewModels;
 public partial class ExpensesViewModel : ObservableObject, ILifecycleAware {
+ private bool draftReady;
+ private bool restoringDraft;
+ partial void OnDescriptionChanged(string value)=>SaveDraftIfReady();
+ partial void OnCategoryChanged(string value)=>SaveDraftIfReady();
+ partial void OnAmountTextChanged(string value)=>SaveDraftIfReady();
+ private void SaveDraftIfReady(){if(draftReady&&!restoringDraft)SaveDraft();}
+
  private readonly IExpenseRepository repo;
  private readonly ILogger<ExpensesViewModel> log;
  private readonly IDraftStore drafts;
@@ -62,9 +69,12 @@ public partial class ExpensesViewModel : ObservableObject, ILifecycleAware {
   drafts.Set("draft.amount",AmountText??"");
  }
  public void RestoreDraft() {
-  Description=drafts.Get("draft.description","");
-  Category=drafts.Get("draft.category","");
-  AmountText=drafts.Get("draft.amount","");
+  string description=drafts.Get("draft.description","");
+  string category=drafts.Get("draft.category","");
+  string amount=drafts.Get("draft.amount","");
+  restoringDraft=true;
+  try { Description=description;Category=category;AmountText=amount; }
+  finally {restoringDraft=false;draftReady=true;}
  }
  public void OnAppearing() {RestoreDraft();_=LoadExpensesAsync();}
  public void OnDisappearing()=>SaveDraft();
