@@ -14,10 +14,13 @@ public sealed class ExpensesViewModelTests
         var draft = new Mock<IDraftStore>();
         draft.Setup(x => x.Get(It.IsAny<string>(), It.IsAny<string>()))
              .Returns((string key, string fallback) => fallback);
+        var auth = new Mock<IAuthService>();
+        auth.SetupGet(x => x.IsSignedIn).Returns(true);
         return new ExpensesViewModel(
             repository.Object,
             NullLogger<ExpensesViewModel>.Instance,
-            draft.Object);
+            draft.Object,
+            auth.Object);
     }
 
     [Fact]
