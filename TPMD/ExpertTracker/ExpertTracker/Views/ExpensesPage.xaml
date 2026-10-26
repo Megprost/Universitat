@@ -49,6 +49,12 @@
                         TextColor="White"
                         CornerRadius="10" />
 
+                <Button Text="Перевірити обробку помилки (Debug)"
+                        IsVisible="{Binding ShowDiagnostics}"
+                        Command="{Binding SimulateFailureCommand}"
+                        BackgroundColor="#64748B"
+                        TextColor="White" />
+
                 <Label Text="{Binding ErrorMessage}"
                        TextColor="#DC2626" FontSize="13" />
             </VerticalStackLayout>

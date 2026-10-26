@@ -1,27 +1,133 @@
-using SQLite;
-using Microsoft.Extensions.Logging;
 using ExpertTracker.Models;
+using Microsoft.Extensions.Logging;
+using SQLite;
+
 namespace ExpertTracker.Services;
-public sealed class DatabaseService : IExpenseRepository {
- private readonly SQLiteAsyncConnection db;
- private readonly ILogger<DatabaseService> logger;
- private readonly SemaphoreSlim gate = new(1,1);
- private bool ready;
- public Task CloseAsync() => db.CloseAsync();
- public DatabaseService(string path, ILogger<DatabaseService> log) { db = new SQLiteAsyncConnection(path);logger=log; }
- private async Task Init() {
-  if(ready)return;
-  await gate.WaitAsync();
-  try { if(!ready){ await db.CreateTableAsync<Expense>(); ready=true;logger.LogInformation("SQLite Expenses table initialized"); } }
-  finally { gate.Release(); }
- }
- public async Task<List<Expense>> GetAllAsync() {
-  await Init(); try {var rows=await db.Table<Expense>().OrderByDescending(x=>x.Id).ToListAsync();logger.LogInformation("Loaded {Count} expenses",rows.Count);return rows;} catch(Exception ex){logger.LogError(ex,"Failed loading expenses");throw;}
- }
- public async Task<Expense?> GetByIdAsync(int id) {
-  await Init(); try {return await db.Table<Expense>().Where(x=>x.Id==id).FirstOrDefaultAsync();}catch(Exception ex){logger.LogError(ex,"Failed reading expense {Id}",id);throw;}
- }
- public async Task<int> InsertAsync(Expense x) { await Init(); try {int n=await db.InsertAsync(x);logger.LogInformation("Inserted expense {Id}",x.Id);return n;}catch(Exception ex){logger.LogError(ex,"Insert failed");throw;} }
- public async Task<int> UpdateAsync(Expense x) { await Init(); try {int n=await db.UpdateAsync(x);logger.LogInformation("Updated expense {Id}",x.Id);return n;}catch(Exception ex){logger.LogError(ex,"Update failed for expense {Id}",x.Id);throw;} }
- public async Task<int> DeleteAsync(Expense x) { await Init(); try {int n=await db.DeleteAsync(x);logger.LogInformation("Deleted expense {Id}",x.Id);return n;}catch(Exception ex){logger.LogError(ex,"Delete failed for expense {Id}",x.Id);throw;} }
+
+public sealed class DatabaseService : IExpenseRepository
+{
+    private readonly SQLiteAsyncConnection _database;
+    private readonly ILogger<DatabaseService> _logger;
+    private readonly SemaphoreSlim _initLock = new(1, 1);
+    private bool _initialized;
+
+    public Task CloseAsync() => _database.CloseAsync();
+
+    public DatabaseService(string path, ILogger<DatabaseService> logger)
+    {
+        _database = new SQLiteAsyncConnection(path);
+        _logger = logger;
+    }
+
+    private async Task EnsureInitializedAsync()
+    {
+        if (_initialized) return;
+
+        await _initLock.WaitAsync();
+        try
+        {
+            if (_initialized) return;
+            await _database.CreateTableAsync<Expense>();
+            _initialized = true;
+            _logger.LogInformation("Expenses table initialized");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "SQLite initialization failed");
+            throw;
+        }
+        finally
+        {
+            _initLock.Release();
+        }
+    }
+
+    public async Task<List<Expense>> GetAllAsync()
+    {
+        try
+        {
+            await EnsureInitializedAsync();
+            var items = await _database.Table<Expense>()
+                .OrderByDescending(x => x.Id).ToListAsync();
+            _logger.LogInformation("Loaded {Count} expense records", items.Count);
+            return items;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Could not load expense records");
+            throw;
+        }
+    }
+
+    public async Task<Expense?> GetByIdAsync(int id)
+    {
+        try
+        {
+            await EnsureInitializedAsync();
+            var item = await _database.Table<Expense>()
+                .Where(x => x.Id == id).FirstOrDefaultAsync();
+            if (item is null)
+                _logger.LogWarning("Expense with ID {ExpenseId} not found", id);
+            return item;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Could not read expense ID {ExpenseId}", id);
+            throw;
+        }
+    }
+
+    public async Task<int> InsertAsync(Expense item)
+    {
+        try
+        {
+            await EnsureInitializedAsync();
+            int count = await _database.InsertAsync(item);
+            _logger.LogInformation("Inserted expense ID {ExpenseId}", item.Id);
+            return count;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Could not insert expense");
+            throw;
+        }
+    }
+
+    public async Task<int> UpdateAsync(Expense item)
+    {
+        try
+        {
+            await EnsureInitializedAsync();
+            int count = await _database.UpdateAsync(item);
+            if (count == 0)
+                _logger.LogWarning("Expense ID {ExpenseId} was not updated", item.Id);
+            else
+                _logger.LogInformation("Updated expense ID {ExpenseId}", item.Id);
+            return count;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Could not update expense ID {ExpenseId}", item.Id);
+            throw;
+        }
+    }
+
+    public async Task<int> DeleteAsync(Expense item)
+    {
+        try
+        {
+            await EnsureInitializedAsync();
+            int count = await _database.DeleteAsync(item);
+            if (count == 0)
+                _logger.LogWarning("Expense ID {ExpenseId} was not deleted", item.Id);
+            else
+                _logger.LogInformation("Deleted expense ID {ExpenseId}", item.Id);
+            return count;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Could not delete expense ID {ExpenseId}", item.Id);
+            throw;
+        }
+    }
 }

@@ -1,22 +1,28 @@
 # ExpertTracker — Лабораторна робота №5
 
-**Дисципліна:** Технології розробки мобільних додатків на C#  
-**Варіант 2:** Трекер бізнес-витрат ФОП  
-**Технології:** C#, .NET MAUI 10, MVVM
+Дисципліна: Технології розробки мобільних додатків на C#. Варіант 2 — трекер бізнес-витрат ФОП.
 
-## Автоматизоване тестування
+## Реалізація
 
-- Unit-тести `ExpensesViewModel` за допомогою xUnit і Moq.
-- Параметризовані перевірки введення та обробки помилок.
-- Інтеграційний SQLite-тест Create → Read → Update → Delete.
-- Окремий проєкт `ExpertTracker.Tests`.
+- Застосунок .NET MAUI 10 з MVVM, SQLite та ILogger<T>.
+- Окремий тестовий проєкт `ExpertTracker.Tests` на xUnit і Moq.
+- Ізоляція ViewModel через `IExpenseRepository` та `IDraftStore`.
+- Unit-тести: завантаження, успішне додавання, помилки читання/запису, нульовий результат вставки, перевірка неправильних сум та обов'язкових полів.
+- Integration-тести: повний CRUD-цикл у тимчасовій SQLite та перевірка збереження після повторного відкриття бази.
+- Тестовий проєкт використовує Windows target `net10.0-windows10.0.19041.0` та не запускає графічний інтерфейс.
 
-## Запуск
+## Запуск тестів
 
-Відкрити `ExpertTracker.slnx` у Visual Studio з .NET MAUI, зібрати проєкт і перевірити функції роботи №5.
-Для тестів: `dotnet test ExpertTracker.Tests/ExpertTracker.Tests.csproj`.
+У Developer PowerShell (Windows):
 
-## Вихідний код
+```powershell
+cd D:\Universitat\TPMD\ExpertTracker
+dotnet restore ExpertTracker.Tests\ExpertTracker.Tests.csproj
+dotnet test ExpertTracker.Tests\ExpertTracker.Tests.csproj --no-restore
+```
 
-Основний проєкт: `ExpertTracker/ExpertTracker.csproj`.  
-Гілка: [`lab-05`](https://github.com/Megprost/Universitat/tree/lab-05).
+Тести також доступні через Test Explorer у Visual Studio. Результати виконання фіксуються після запуску тестів у робочому середовищі.
+
+## GitHub
+
+https://github.com/Megprost/Universitat/tree/lab-05
