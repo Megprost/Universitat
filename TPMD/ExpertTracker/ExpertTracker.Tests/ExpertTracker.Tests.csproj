@@ -1,11 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <IsTestProject>true</IsTestProject>
     <IsPackable>false</IsPackable>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <WindowsAppSdkBootstrapInitialize>true</WindowsAppSdkBootstrapInitialize>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
@@ -19,11 +18,4 @@
   <ItemGroup>
     <ProjectReference Include="../ExpertTracker/ExpertTracker.csproj" />
   </ItemGroup>
-  <!-- The test host does not package icons from the referenced MAUI application. -->
-  <Target Name="ExcludeAppIconFromTests" AfterTargets="ResizetizeCollectItems">
-    <ItemGroup>
-      <MauiImage Remove="@(MauiImage)"
-                 Condition="'%(MauiImage.Filename)' == 'appicon'" />
-    </ItemGroup>
-  </Target>
 </Project>
