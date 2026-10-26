@@ -7,8 +7,8 @@
 - Застосунок .NET MAUI 10 з MVVM, SQLite та ILogger<T>.
 - Окремий тестовий проєкт `ExpertTracker.Tests` на xUnit і Moq.
 - Ізоляція ViewModel через `IExpenseRepository` та `IDraftStore`.
-- Unit-тести: завантаження, успішне додавання, помилки читання/запису, нульовий результат вставки, перевірка неправильних сум та обов'язкових полів.
-- Integration-тести: повний CRUD-цикл у тимчасовій SQLite та перевірка збереження після повторного відкриття бази.
+- Unit-тести (13 сценаріїв): завантаження, успішне додавання, помилки читання/запису, нульовий результат вставки, перевірка неправильних сум та обов'язкових полів.
+- Integration-тести (2 сценарії): повний CRUD-цикл у тимчасовій SQLite та перевірка збереження після повторного відкриття бази.
 - Тестовий проєкт використовує Windows target `net10.0-windows10.0.19041.0` та не запускає графічний інтерфейс.
 
 ## Запуск тестів
@@ -21,7 +21,7 @@ dotnet restore ExpertTracker.Tests\ExpertTracker.Tests.csproj
 dotnet test ExpertTracker.Tests\ExpertTracker.Tests.csproj --no-restore
 ```
 
-Тести також доступні через Test Explorer у Visual Studio. Результати виконання фіксуються після запуску тестів у робочому середовищі.
+Тести також доступні через Test Explorer у Visual Studio. 
 
 ## GitHub
 
