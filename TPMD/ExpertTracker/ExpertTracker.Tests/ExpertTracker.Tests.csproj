@@ -19,4 +19,11 @@
   <ItemGroup>
     <ProjectReference Include="../ExpertTracker/ExpertTracker.csproj" />
   </ItemGroup>
+  <!-- The test host does not package icons from the referenced MAUI application. -->
+  <Target Name="ExcludeAppIconFromTests" AfterTargets="ResizetizeCollectItems">
+    <ItemGroup>
+      <MauiImage Remove="@(MauiImage)"
+                 Condition="'%(MauiImage.Filename)' == 'appicon'" />
+    </ItemGroup>
+  </Target>
 </Project>
