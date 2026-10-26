@@ -28,9 +28,5 @@
 	</array>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
-  <key>NSCameraUsageDescription</key>
-  <string>Фотографування підтвердного чека витрати.</string>
-  <key>NSLocationWhenInUseUsageDescription</key>
-  <string>Збереження місця бізнес-витрати за бажанням користувача.</string>
 </dict>
 </plist>

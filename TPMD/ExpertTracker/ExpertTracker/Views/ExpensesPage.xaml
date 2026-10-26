@@ -10,12 +10,11 @@
     BackgroundColor="#F5F7FB">
 
     <Grid Padding="18" RowDefinitions="Auto,Auto,Auto,*,Auto" RowSpacing="12">
-        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="12">
-        <Label Text="Облік бізнес-витрат" FontSize="24"
-          FontAttributes="Bold" TextColor="#172554" VerticalOptions="Center"/>
-        <Button Grid.Column="1" Text="Вийти" Command="{Binding LogoutCommand}"
-          BackgroundColor="#475569" TextColor="White" />
-      </Grid>
+        <Label Grid.Row="0"
+               Text="Облік бізнес-витрат"
+               FontSize="24"
+               FontAttributes="Bold"
+               TextColor="#172554" />
 
         <Border Grid.Row="1" BackgroundColor="White"
                 Stroke="#E2E8F0" StrokeShape="RoundRectangle 14"
@@ -49,6 +48,12 @@
                         BackgroundColor="#2563EB"
                         TextColor="White"
                         CornerRadius="10" />
+
+                <Button Text="Перевірити обробку помилки (Debug)"
+                        IsVisible="{Binding ShowDiagnostics}"
+                        Command="{Binding SimulateFailureCommand}"
+                        BackgroundColor="#64748B"
+                        TextColor="White" />
 
                 <Label Text="{Binding ErrorMessage}"
                        TextColor="#DC2626" FontSize="13" />

@@ -7,7 +7,6 @@ using ExpertTracker.Models;
 using ExpertTracker.Services;
 using ExpertTracker.Views;
 using Microsoft.Extensions.Logging;
-using Microsoft.Maui.Storage;
 
 namespace ExpertTracker.ViewModels;
 public partial class ExpensesViewModel : ObservableObject, ILifecycleAware {
@@ -21,8 +20,6 @@ public partial class ExpensesViewModel : ObservableObject, ILifecycleAware {
  private readonly IExpenseRepository repo;
  private readonly ILogger<ExpensesViewModel> log;
  private readonly IDraftStore drafts;
- private readonly IAuthService auth;
- public bool IsSignedIn=>auth.IsSignedIn;
  public ObservableCollection<Expense> Expenses {get;}=new();
  [ObservableProperty] public partial string Description {get;set;}
  [ObservableProperty] public partial string Category {get;set;}
@@ -30,13 +27,41 @@ public partial class ExpensesViewModel : ObservableObject, ILifecycleAware {
  [ObservableProperty] public partial string ErrorMessage {get;set;}
  [ObservableProperty] public partial Expense? SelectedExpense {get;set;}
  public decimal TotalAmount=>Expenses.Sum(x=>x.Amount);
- public ExpensesViewModel(IExpenseRepository repository, ILogger<ExpensesViewModel> logger, IDraftStore draftStore, IAuthService authService) {
-  drafts=draftStore;auth=authService;
+
+ // Visible only in Debug builds. This test does not modify SQLite data.
+ public bool ShowDiagnostics
+ {
+  get
+  {
+#if DEBUG
+   return true;
+#else
+   return false;
+#endif
+  }
+ }
+
+ [RelayCommand]
+ private void SimulateFailure()
+ {
+#if DEBUG
+  try
+  {
+   throw new InvalidOperationException("Controlled failure for checking error logging.");
+  }
+  catch (Exception ex)
+  {
+   log.LogError(ex, "Simulated failed expense operation");
+   ErrorMessage = "Не вдалося зберегти дані, спробуйте ще раз.";
+  }
+#endif
+ }
+ public ExpensesViewModel(IExpenseRepository repository, ILogger<ExpensesViewModel> logger, IDraftStore draftStore) {
+  drafts=draftStore;
   log=logger;
   repo=repository; Description=Category=AmountText=ErrorMessage=""; RestoreDraft();
  }
  [RelayCommand] private async Task LoadExpensesAsync() {
-  if(!auth.IsSignedIn){Expenses.Clear();OnPropertyChanged(nameof(TotalAmount));ErrorMessage="Увійдіть до застосунку.";return;}
   try {
    var items=await repo.GetAllAsync(); Expenses.Clear();
    foreach(var item in items)Expenses.Add(item);
@@ -47,23 +72,30 @@ public partial class ExpensesViewModel : ObservableObject, ILifecycleAware {
   }
  }
  [RelayCommand] private async Task AddExpenseAsync() {
-  if(!auth.IsSignedIn){ErrorMessage="Спочатку увійдіть.";return;}
   if(string.IsNullOrWhiteSpace(Description)||string.IsNullOrWhiteSpace(Category)){
    log.LogWarning("Invalid expense: required fields missing");ErrorMessage="Введіть назву та категорію.";return;
   }
   if(!decimal.TryParse((AmountText??"").Replace(',','.'),
    NumberStyles.AllowDecimalPoint,CultureInfo.InvariantCulture,out var amount)
    ||amount<=0||amount>1000000000m||decimal.Round(amount,2)!=amount) {
+   log.LogWarning("Invalid expense amount");
    ErrorMessage="Введіть коректну суму (до 2 знаків після коми).";return;
   }
   try {
    var item=new Expense{Description=Description.Trim(),Category=Category.Trim(),Amount=amount,Date=DateTime.Today};
-   await repo.InsertAsync(item); await LoadExpensesAsync();
+   int inserted = await repo.InsertAsync(item);
+   if (inserted == 0)
+   {
+    log.LogWarning("Insert returned zero affected records");
+    ErrorMessage = "Не вдалося зберегти дані, спробуйте ще раз.";
+    return;
+   }
+   await LoadExpensesAsync();
    Description=Category=AmountText="";SaveDraft();
-  } catch(Exception ex) { log.LogError(ex,"Expense insert failed");ErrorMessage="Не вдалося зберегти."; }
+  } catch(Exception ex) { log.LogError(ex,"Expense insert failed");ErrorMessage="Не вдалося зберегти дані, спробуйте ще раз."; }
  }
  [RelayCommand] private async Task OpenDetailsAsync() {
-  var item=SelectedExpense;if(item is null||!auth.IsSignedIn)return;
+  var item=SelectedExpense;if(item is null)return;
   SelectedExpense=null;SaveDraft();
   await Shell.Current.GoToAsync(nameof(ExpenseDetailsPage)+"?id="+item.Id.ToString(CultureInfo.InvariantCulture));
  }
@@ -80,7 +112,6 @@ public partial class ExpensesViewModel : ObservableObject, ILifecycleAware {
   try { Description=description;Category=category;AmountText=amount; }
   finally {restoringDraft=false;draftReady=true;}
  }
- [RelayCommand]private async Task LogoutAsync(){auth.Logout();Expenses.Clear();OnPropertyChanged(nameof(TotalAmount));await Shell.Current.GoToAsync("//login");}
- public void OnAppearing() {RestoreDraft();if(auth.IsSignedIn)_=LoadExpensesAsync();}
+ public void OnAppearing() {RestoreDraft();_=LoadExpensesAsync();}
  public void OnDisappearing()=>SaveDraft();
 }
