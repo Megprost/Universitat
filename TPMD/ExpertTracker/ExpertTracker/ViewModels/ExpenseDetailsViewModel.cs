@@ -24,7 +24,7 @@ public partial class ExpenseDetailsViewModel:ObservableObject,IQueryAttributable
  [RelayCommand]private async Task LoadAsync() {
   try {
    var x=await repo.GetByIdAsync(id);
-   if(x is null){Message="Не знайдено.";return;}
+   if(x is null){log.LogWarning("Expense ID {ExpenseId} not found",id);Message="Не знайдено.";return;}
    Description=x.Description;Category=x.Category;
    AmountText=x.Amount.ToString("0.00",CultureInfo.InvariantCulture);
    DateText=x.Date.ToString("dd.MM.yyyy");Message="";
@@ -39,13 +39,17 @@ public partial class ExpenseDetailsViewModel:ObservableObject,IQueryAttributable
   try {
    var x=await repo.GetByIdAsync(id);if(x is null){Message="Не знайдено.";return;}
    x.Description=Description.Trim();x.Category=Category.Trim();x.Amount=a;
-   await repo.UpdateAsync(x);await Shell.Current.GoToAsync("..");
+   int updated=await repo.UpdateAsync(x);
+   if(updated==0){Message="Запис не вдалося оновити.";return;}
+   await Shell.Current.GoToAsync("..");
   }catch(Exception ex){log.LogError(ex,"Expense detail operation failed");Message="Не вдалося оновити.";}
  }
  [RelayCommand]private async Task DeleteAsync() {
   try {
    var x=await repo.GetByIdAsync(id);if(x is null){Message="Не знайдено.";return;}
-   await repo.DeleteAsync(x);await Shell.Current.GoToAsync("..");
+   int deleted=await repo.DeleteAsync(x);
+   if(deleted==0){Message="Запис не вдалося видалити.";return;}
+   await Shell.Current.GoToAsync("..");
   }catch(Exception ex){log.LogError(ex,"Expense detail operation failed");Message="Не вдалося видалити.";}
  }
  [RelayCommand]private Task GoBackAsync()=>Shell.Current.GoToAsync("..");

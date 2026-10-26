@@ -27,6 +27,35 @@ public partial class ExpensesViewModel : ObservableObject, ILifecycleAware {
  [ObservableProperty] public partial string ErrorMessage {get;set;}
  [ObservableProperty] public partial Expense? SelectedExpense {get;set;}
  public decimal TotalAmount=>Expenses.Sum(x=>x.Amount);
+
+ // Visible only in Debug builds. This test does not modify SQLite data.
+ public bool ShowDiagnostics
+ {
+  get
+  {
+#if DEBUG
+   return true;
+#else
+   return false;
+#endif
+  }
+ }
+
+ [RelayCommand]
+ private void SimulateFailure()
+ {
+#if DEBUG
+  try
+  {
+   throw new InvalidOperationException("Controlled failure for checking error logging.");
+  }
+  catch (Exception ex)
+  {
+   log.LogError(ex, "Simulated failed expense operation");
+   ErrorMessage = "Не вдалося зберегти дані, спробуйте ще раз.";
+  }
+#endif
+ }
  public ExpensesViewModel(IExpenseRepository repository, ILogger<ExpensesViewModel> logger) {
   log=logger;
   repo=repository; Description=Category=AmountText=ErrorMessage=""; RestoreDraft();
@@ -48,13 +77,21 @@ public partial class ExpensesViewModel : ObservableObject, ILifecycleAware {
   if(!decimal.TryParse((AmountText??"").Replace(',','.'),
    NumberStyles.AllowDecimalPoint,CultureInfo.InvariantCulture,out var amount)
    ||amount<=0||amount>1000000000m||decimal.Round(amount,2)!=amount) {
+   log.LogWarning("Invalid expense amount");
    ErrorMessage="Введіть коректну суму (до 2 знаків після коми).";return;
   }
   try {
    var item=new Expense{Description=Description.Trim(),Category=Category.Trim(),Amount=amount,Date=DateTime.Today};
-   await repo.InsertAsync(item); await LoadExpensesAsync();
+   int inserted = await repo.InsertAsync(item);
+   if (inserted == 0)
+   {
+    log.LogWarning("Insert returned zero affected records");
+    ErrorMessage = "Не вдалося зберегти дані, спробуйте ще раз.";
+    return;
+   }
+   await LoadExpensesAsync();
    Description=Category=AmountText="";SaveDraft();
-  } catch(Exception ex) { log.LogError(ex,"Expense insert failed");ErrorMessage="Не вдалося зберегти."; }
+  } catch(Exception ex) { log.LogError(ex,"Expense insert failed");ErrorMessage="Не вдалося зберегти дані, спробуйте ще раз."; }
  }
  [RelayCommand] private async Task OpenDetailsAsync() {
   var item=SelectedExpense;if(item is null)return;

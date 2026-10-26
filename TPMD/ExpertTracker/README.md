@@ -2,21 +2,21 @@
 
 **Дисципліна:** Технології розробки мобільних додатків на C#  
 **Варіант 2:** Трекер бізнес-витрат ФОП  
-**Технології:** C#, .NET MAUI 10, MVVM
+**Технології:** .NET MAUI 10, C#, MVVM, SQLite
 
 ## Логування та обробка помилок
 
-- SQLite і асинхронні CRUD-операції.
-- `ILogger<T>` та файловий журнал `experttracker.log`.
-- Обробка помилок у Repository та ViewModel.
-- Глобальні обробники винятків застосунку.
+- Типізовані логери `ILogger<T>` ін'єктуються в `DatabaseService` та ViewModel через DI.
+- `FileLoggerProvider` записує час, рівень, категорію й повідомлення в `experttracker.log` (каталог `FileSystem.AppDataDirectory`).
+- `Information` — штатні CRUD-операції; `Warning` — відсутній запис або некоректне введення; `Error` — перехоплений виняток; `Critical` — необроблений або неспостережений виняток.
+- Операції SQLite, включно з ініціалізацією, мають `try-catch`; технічні деталі фіксуються в журналі, користувач отримує коротке повідомлення.
+- Глобальні обробники `AppDomain.CurrentDomain.UnhandledException` і `TaskScheduler.UnobservedTaskException` реєструються в `MauiProgram.cs`.
 
-## Запуск
+## Перевірка
 
-Відкрити `ExpertTracker.slnx` у Visual Studio з .NET MAUI, зібрати проєкт і перевірити функції роботи №4.
+Відкрити `ExpertTracker.slnx`, запустити застосунок, додати/оновити/видалити тестові витрати.
+Під час Debug-запуску в Output з'являється рядок `[Lab04] Log file: ...` із точним шляхом журналу.
 
+У Debug-версії є кнопка **«Перевірити обробку помилки (Debug)»**. Вона створює контрольований тестовий виняток без змін у базі, фіксує його на рівні `Error` та показує повідомлення без технічних деталей. У Release-версії ця кнопка прихована.
 
-## Вихідний код
-
-Основний проєкт: `ExpertTracker/ExpertTracker.csproj`.  
-Гілка: [`lab-04`](https://github.com/Megprost/Universitat/tree/lab-04).
+Гілка: https://github.com/Megprost/Universitat/tree/lab-04
