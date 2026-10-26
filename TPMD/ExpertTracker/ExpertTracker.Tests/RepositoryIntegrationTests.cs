@@ -54,15 +54,20 @@ public sealed class RepositoryIntegrationTests
     public async Task Sqlite_ReopeningDatabase_ShouldRetainSavedExpense()
     {
         string path = NewDatabasePath();
-        var first = new DatabaseService(path, NullLogger<DatabaseService>.Instance);
         try
         {
-            var expense = new Expense
+            var first = new DatabaseService(path, NullLogger<DatabaseService>.Instance);
+            try
             {
-                Description = "Оренда", Category = "Офіс", Amount = 1500m
-            };
-            await first.InsertAsync(expense);
-            await first.CloseAsync();
+                await first.InsertAsync(new Expense
+                {
+                    Description = "Оренда", Category = "Офіс", Amount = 1500m
+                });
+            }
+            finally
+            {
+                await first.CloseAsync();
+            }
 
             var reopened = new DatabaseService(path, NullLogger<DatabaseService>.Instance);
             try
@@ -79,8 +84,6 @@ public sealed class RepositoryIntegrationTests
         }
         finally
         {
-            // SQLiteAsyncConnection.CloseAsync is idempotent for this test connection pool.
-            await first.CloseAsync();
             if (File.Exists(path)) File.Delete(path);
         }
     }
