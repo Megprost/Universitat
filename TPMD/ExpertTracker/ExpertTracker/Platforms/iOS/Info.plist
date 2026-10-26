@@ -28,5 +28,9 @@
 	</array>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
+  <key>NSCameraUsageDescription</key>
+  <string>Камера потрібна для фотографування чеків за бізнес-витратами.</string>
+  <key>NSLocationWhenInUseUsageDescription</key>
+  <string>Координати зберігаються лише за бажанням користувача разом із витратою.</string>
 </dict>
 </plist>
