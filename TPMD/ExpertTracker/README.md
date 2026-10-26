@@ -1,13 +1,22 @@
-# ExpertTracker — лабораторна №4 (варіант 2)
-Трекер бізнес-витрат ФОП на .NET MAUI 10.
+# ExpertTracker — Лабораторна робота №4
 
-## Функціональність №1–4
-№1: MVVM. №2: Shell, Preferences, ILifecycleAware. №3: SQLite + Repository + CRUD.
-№4: Microsoft.Extensions.Logging із власним файловим ILoggerProvider; журнал FileSystem.AppDataDirectory/experttracker.log, DI ILogger<T> в DatabaseService і ViewModel, LogInformation/LogWarning/LogError/LogCritical, try-catch і зрозумілі UI-повідомлення, глобальні обробники AppDomain/TaskScheduler.
+**Дисципліна:** Технології розробки мобільних додатків на C#  
+**Варіант 2:** Трекер бізнес-витрат ФОП  
+**Технології:** C#, .NET MAUI 10, MVVM
 
-## Перевірка
-Запустити застосунок, виконати успішний CRUD, перевірити записи Information. Змоделювати контрольовану помилку репозиторію в тестовому середовищі та перевірити Error і повідомлення користувача. Не вважати глобальний обробник гарантією продовження роботи після критичного збою.
-**Новий код №4 на пристрої ще не перевірено.**
-[Інструкція ЛР №4](Reports/Lab04/README.md)
+## Логування та обробка помилок
 
-Поточна ціль .NET 10; методичка вказує .NET 8.
+- SQLite і асинхронні CRUD-операції.
+- `ILogger<T>` та файловий журнал `experttracker.log`.
+- Обробка помилок у Repository та ViewModel.
+- Глобальні обробники винятків застосунку.
+
+## Запуск
+
+Відкрити `ExpertTracker.slnx` у Visual Studio з .NET MAUI, зібрати проєкт і перевірити функції роботи №4.
+
+
+## Вихідний код
+
+Основний проєкт: `ExpertTracker/ExpertTracker.csproj`.  
+Гілка: [`lab-04`](https://github.com/Megprost/Universitat/tree/lab-04).
