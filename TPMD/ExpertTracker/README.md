@@ -1,15 +1,22 @@
-# ExpertTracker — лабораторна №5 (варіант 2)
+# ExpertTracker — Лабораторна робота №5
 
-## Реалізовано
-Попередні можливості №1–4 і тестовий проєкт ExpertTracker.Tests на xUnit + Moq. `IDraftStore` відділяє Preferences від ViewModel. Unit-тести використовують mock IExpenseRepository. Інтеграційний тест використовує окремий тимчасовий файл SQLite й перевіряє Insert → Read → Update → Delete. Додано [Fact], [Theory] / [InlineData], обробку винятків і перевірку валідації.
+**Дисципліна:** Технології розробки мобільних додатків на C#  
+**Варіант 2:** Трекер бізнес-витрат ФОП  
+**Технології:** C#, .NET MAUI 10, MVVM
+
+## Автоматизоване тестування
+
+- Unit-тести `ExpensesViewModel` за допомогою xUnit і Moq.
+- Параметризовані перевірки введення та обробки помилок.
+- Інтеграційний SQLite-тест Create → Read → Update → Delete.
+- Окремий проєкт `ExpertTracker.Tests`.
 
 ## Запуск
-```powershell
-cd D:\Universitat\TPMD\ExpertTracker
-dotnet test ExpertTracker.Tests/ExpertTracker.Tests.csproj
-```
 
-**Тести ще не запускалися в Visual Studio, результат PASS не підтверджено.**
-[Інструкція ЛР №5](Reports/Lab05/README.md)
+Відкрити `ExpertTracker.slnx` у Visual Studio з .NET MAUI, зібрати проєкт і перевірити функції роботи №5.
+Для тестів: `dotnet test ExpertTracker.Tests/ExpertTracker.Tests.csproj`.
 
-.NET 10 замість .NET 8 потребує погодження.
+## Вихідний код
+
+Основний проєкт: `ExpertTracker/ExpertTracker.csproj`.  
+Гілка: [`lab-05`](https://github.com/Megprost/Universitat/tree/lab-05).
